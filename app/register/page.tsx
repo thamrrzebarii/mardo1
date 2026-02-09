@@ -87,7 +87,7 @@ export default function RegisterPage() {
   className="w-full bg-white border-2 border-gray-50 p-5 rounded-[25px] font-black text-lg text-gray-800 flex items-center justify-center gap-3 shadow-xl transition-all duration-300 hover:border-[#4285F4]/30 hover:shadow-[0_10px_25px_rgba(66,133,244,0.1)] hover:scale-[1.02] active:scale-95"
 >
   <img src="/login.png" className="w-7 h-7" alt="G" />
-  <span>تێچوون ب رێکا گۆگلی</span>
+  <span>داخلبوون ب رێکا گۆگلی</span>
 </button>
             <div className="flex items-center gap-4 my-2 text-gray-300 font-bold">
               <div className="h-[1px] bg-gray-200 flex-1"></div>
@@ -168,4 +168,5 @@ export default function RegisterPage() {
       </footer>
     </div>
   );
+
 }
