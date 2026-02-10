@@ -55,7 +55,7 @@ export default function ChatPage() {
   }, []);
 
   const toggleAdmin = async (targetId: string) => {
-    if (!isOwner) return; // تەنێ تو دشێی رۆلان بدەی وەک Discord
+    if (!isOwner) return; 
     const adminDocRef = doc(db, "settings", "admin_list");
     
     try {
@@ -72,7 +72,8 @@ export default function ChatPage() {
   };
 
   const clearAllMessages = async () => {
-    if (!isAdmin) return;
+    // لێرە چاککرا: ئێستا ئەگەر ئۆنەریش بیت دەتوانیت هەمووی پاک بکەیتەوە
+    if (!isAdmin && !isOwner) return;
     if (window.confirm("ماردۆ، تو پشت راستی تە دڤێت هەمی چاتێ بڕێزی؟")) {
       try {
         const snapshot = await getDocs(collection(db, "messages"));
@@ -145,7 +146,8 @@ export default function ChatPage() {
   };
 
   const deleteMessage = async (msgId: string, msgUid: string) => {
-    if (msgUid !== userData?.id && !isAdmin) return; 
+    // لێرە چاککرا: ئێستا ئۆنەریش (isOwner) دەسەڵاتی سڕینەوەی هەیە
+    if (msgUid !== userData?.id && !isAdmin && !isOwner) return; 
     if (window.confirm("تە دڤێت ئەڤ نامە بهێتە ژێبرن؟")) {
       try { await deleteDoc(doc(db, "messages", msgId)); } catch (error) { console.error(error); }
     }
@@ -182,7 +184,8 @@ export default function ChatPage() {
             <h2 className="text-lg font-black text-gray-800 italic uppercase tracking-tighter">Mardo</h2>
           </div>
           <div className="flex gap-2 items-center">
-            {isAdmin && (
+            {/* لێرە چاککرا: دوگمەی پاقژکردن بۆ ئۆنەریش دیار دەبێت */}
+            {(isAdmin || isOwner) && (
               <button onClick={clearAllMessages} className="p-2 bg-red-500 text-white rounded-xl text-[10px] font-black shadow-md active:scale-90">🗑️ پاقژکرن</button>
             )}
             <button onClick={() => setIsEditingProfile(true)} className="p-2 bg-gray-50 rounded-xl hover:bg-gray-100 text-[11px] font-bold text-black">دەستکاریا هەژمارێ</button>
@@ -200,7 +203,7 @@ export default function ChatPage() {
         <div className="py-3 px-4 flex gap-4 overflow-x-auto scrollbar-hide items-center min-h-[85px] border-t border-gray-50">
           {onlineUsers.map((u) => (
             <div key={u.id} onClick={() => setViewingProfile(u)} className="flex flex-col items-center min-w-[60px] cursor-pointer">
-              <div className={`relative p-[2px] rounded-full ${u.id === userData?.id ? "bg-orange-400" : (adminUIDs.includes(u.id) ? "bg-red-500" : "bg-[#00CDAC]")}`}>
+              <div className={`relative p-[2px] rounded-full ${u.id === userData?.id ? "bg-orange-400" : (u.id === ownerID ? "bg-purple-600" : (adminUIDs.includes(u.id) ? "bg-red-500" : "bg-[#00CDAC]"))}`}>
                 <img src={u.photo || "/login.png"} className="w-11 h-11 rounded-full border-2 border-white object-cover" />
                 <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
               </div>
@@ -232,9 +235,10 @@ export default function ChatPage() {
                       </div>
                     )}
                     <div 
-                      onTouchStart={() => (isMe || isAdmin) && handleTouchStart(msg.id, msg.uid)}
+                      // لێرە چاککرا: مەرجی سڕینەوە بۆ ئۆنەریش زیادکرا
+                      onTouchStart={() => (isMe || isAdmin || isOwner) && handleTouchStart(msg.id, msg.uid)}
                       onTouchEnd={handleTouchEnd}
-                      onContextMenu={(e) => { e.preventDefault(); (isMe || isAdmin) && deleteMessage(msg.id, msg.uid); }}
+                      onContextMenu={(e) => { e.preventDefault(); (isMe || isAdmin || isOwner) && deleteMessage(msg.id, msg.uid); }}
                       onClick={() => setReplyTo(msg)}
                       className={`px-4 py-3 shadow-sm active:scale-95 transition-all relative ${
                         isMe ? "bg-gradient-to-r from-[#02AAB0] to-[#00CDAC] text-white rounded-[20px] rounded-tr-none" 
